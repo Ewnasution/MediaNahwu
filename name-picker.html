@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAME PICKER // PILOT SELECTION SYSTEM</title>
+<style>
+  /* ============================================================
+     DESIGN TOKENS — Mecha / HUD theme
+     ============================================================ */
+  :root{
+    --bg-void:#05070a;
+    --bg-panel:#0c131e;
+    --bg-panel-2:#101b29;
+    --bg-card-front:#0e1721;
+    --bg-card-back:#0a1f16;
+
+    --accent-cyan:#00e5ff;
+    --accent-cyan-dim:#0a5a68;
+    --accent-amber:#ffb020;
+    --accent-amber-dim:#7a5514;
+    --accent-red:#ff3b5c;
+    --accent-red-dim:#7a1626;
+    --accent-green:#39ff9e;
+    --accent-green-dim:#0f5a3a;
+
+    --border-mech:#20344a;
+    --text-primary:#dcebf5;
+    --text-dim:#5f7994;
+    --text-faint:#3a4c5e;
+
+    --font-display:'Eurostile','Orbitron','Segoe UI',system-ui,sans-serif;
+    --font-mono:'Consolas','SFMono-Regular','Courier New',monospace;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(ellipse at 20% -10%, #0c1a2a 0%, transparent 55%),
+      radial-gradient(ellipse at 100% 110%, #0c1a20 0%, transparent 50%),
+      var(--bg-void);
+    color:var(--text-primary);
+    font-family:var(--font-mono);
+    letter-spacing:.02em;
+    overflow-x:hidden;
+  }
+
+  /* faint scanline + grid overlay across whole page */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(var(--border-mech) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border-mech) 1px, transparent 1px);
+    background-size:42px 42px;
+    opacity:.06;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  ::selection{ background:var(--accent-cyan); color:#001217; }
+
+  /* ============================================================
+     LAYOUT SHELL
+     ============================================================ */
+  .shell{
+    position:relative;
+    z-index:1;
+    max-width:1180px;
+    margin:0 auto;
+    padding:22px 20px 60px;
+  }
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:26px;
+  }
+
+  .btn-back{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 18px 10px 14px;
+    background:var(--bg-panel);
+    border:1px solid var(--border-mech);
+    color:var(--text-dim);
+    text-decoration:none;
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    clip-path:polygon(0 0,calc(100% - 10px) 0,100% 100%,10px 100%);
+    transition:color .15s ease, border-color .15s ease, background .15s ease;
+  }
+  .btn-back:hover{
+    color:var(--accent-cyan);
+    border-color:var(--accent-cyan-dim);
+    background:#0e1c26;
+  }
+
+  .sys-readout{
+    display:flex;
+    gap:22px;
+    font-size:11px;
+    color:var(--text-faint);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+  }
+  .sys-readout span b{
+    color:var(--accent-cyan);
+    font-weight:600;
+  }
+
+  /* ---------- header / hero ---------- */
+  .hero{
+    position:relative;
+    padding:26px 26px 22px;
+    margin-bottom:28px;
+    background:linear-gradient(180deg,var(--bg-panel) 0%, #091019 100%);
+    border:1px solid var(--border-mech);
+    clip-path:polygon(0 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%);
+  }
+  .hero::after{
+    content:"";
+    position:absolute; left:0; right:0; top:0; height:2px;
+    background:linear-gradient(90deg, var(--accent-cyan), transparent 60%);
+    opacity:.7;
+  }
+  .hero-eyebrow{
+    font-size:11px;
+    color:var(--accent-cyan);
+    letter-spacing:.3em;
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .hero h1{
+    font-family:var(--font-display);
+    font-size:clamp(26px,4.5vw,42px);
+    margin:0 0 6px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:#fff;
+    text-shadow:0 0 18px rgba(0,229,255,.25);
+  }
+  .hero p{
+    margin:0;
+    font-size:13px;
+    color:var(--text-dim);
+    letter-spacing:.04em;
+  }
+
+  /* ---------- controls ---------- */
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-bottom:30px;
+  }
+  .btn{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:13px 22px;
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    font-weight:600;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    background:var(--bg-panel-2);
+    border:1px solid var(--border-mech);
+    color:var(--text-primary);
+    cursor:pointer;
+    clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);
+    transition:transform .12s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease, color .15s ease;
+  }
+  .btn:active{ transform:translateY(1px) scale(.98); }
+  .btn:disabled{
+    opacity:.35;
+    cursor:not-allowed;
+    filter:grayscale(.4);
+  }
+  .btn .ico{ font-size:15px; line-height:1; }
+
+  .btn-random{ border-color:var(--accent-cyan-dim); }
+  .btn-random:not(:disabled):hover{
+    border-color:var(--accent-cyan);
+    color:var(--accent-cyan);
+    box-shadow:0 0 22px -6px rgba(0,229,255,.55);
+    background:#0d1c24;
+  }
+
+  .btn-shuffle{ border-color:var(--accent-amber-dim); }
+  .btn-shuffle:not(:disabled):hover{
+    border-color:var(--accent-amber);
+    color:var(--accent-amber);
+    box-shadow:0 0 22px -6px rgba(255,176,32,.5);
+    background:#241a0c;
+  }
+
+  .btn-reset{ border-color:var(--accent-red-dim); }
+  .btn-reset:not(:disabled):hover{
+    border-color:var(--accent-red);
+    color:var(--accent-red);
+    box-shadow:0 0 22px -6px rgba(255,59,92,.5);
+    background:#240d13;
+  }
+
+  .toast{
+    font-size:11.5px;
+    letter-spacing:.08em;
+    color:var(--accent-green);
+    text-transform:uppercase;
+    display:flex;
+    align-items:center;
+    min-height:16px;
+    opacity:0;
+    transition:opacity .25s ease;
+  }
+  .toast.show{ opacity:1; }
+
+  /* ============================================================
+     CARD GRID
+     ============================================================ */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+    gap:18px;
+  }
+
+  .card{
+    perspective:1000px;
+    aspect-ratio:3/4;
+    cursor:pointer;
+  }
+  .card.locked-open{ cursor:default; }
+
+  .card-inner{
+    position:relative;
+    width:100%; height:100%;
+    transform-style:preserve-3d;
+    transition:transform .65s cubic-bezier(.2,.8,.25,1);
+  }
+  .card.opened .card-inner{ transform:rotateY(180deg); }
+
+  .card.pulse .card-inner{
+    animation:pulseGlow .65s ease;
+  }
+  @keyframes pulseGlow{
+    0%{ filter:drop-shadow(0 0 0px rgba(57,255,158,0)); }
+    40%{ filter:drop-shadow(0 0 16px rgba(57,255,158,.85)); }
+    100%{ filter:drop-shadow(0 0 0px rgba(57,255,158,0)); }
+  }
+
+  .card.shake .card-inner{ animation:shakeCard .32s ease; }
+  @keyframes shakeCard{
+    0%,100%{ transform:translateX(0); }
+    25%{ transform:translateX(-4px); }
+    75%{ transform:translateX(4px); }
+  }
+
+  .card.reshuffling .card-inner{ animation:spinShuffle .5s ease; }
+  @keyframes spinShuffle{
+    0%{ transform:rotateY(0) scale(1); }
+    50%{ transform:rotateY(90deg) scale(.92); }
+    100%{ transform:rotateY(0) scale(1); }
+  }
+
+  .face{
+    position:absolute; inset:0;
+    backface-visibility:hidden;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:14px;
+    border:1px solid var(--border-mech);
+    clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);
+    text-align:center;
+  }
+
+  /* ---- FRONT (closed / standby) ---- */
+  .face-front{
+    background:
+      repeating-linear-gradient(115deg, rgba(0,229,255,.035) 0 2px, transparent 2px 5px),
+      linear-gradient(160deg,var(--bg-card-front) 0%, #060b12 100%);
+    border-color:var(--border-mech);
+  }
+  .card:hover .face-front{ border-color:var(--accent-cyan-dim); }
+
+  .face-front .corner{
+    position:absolute;
+    width:14px; height:14px;
+    border:2px solid var(--accent-cyan-dim);
+    opacity:.8;
+  }
+  .face-front .corner.tl{ top:8px; left:8px; border-right:none; border-bottom:none; }
+  .face-front .corner.tr{ top:8px; right:8px; border-left:none; border-bottom:none; }
+  .face-front .corner.bl{ bottom:8px; left:8px; border-right:none; border-top:none; }
+  .face-front .corner.br{ bottom:8px; right:8px; border-left:none; border-top:none; }
+  .card:hover .face-front .corner{ border-color:var(--accent-cyan); }
+
+  .front-glyph{
+    font-family:var(--font-display);
+    font-size:34px;
+    color:var(--text-faint);
+    line-height:1;
+    margin-bottom:10px;
+    transition:color .2s ease;
+  }
+  .card:hover .front-glyph{ color:var(--accent-cyan-dim); }
+
+  .front-id{
+    font-size:11px;
+    letter-spacing:.18em;
+    color:var(--text-dim);
+    text-transform:uppercase;
+  }
+  .front-status{
+    margin-top:10px;
+    font-size:9.5px;
+    letter-spacing:.2em;
+    color:var(--text-faint);
+    text-transform:uppercase;
+    padding:3px 9px;
+    border:1px solid var(--border-mech);
+  }
+
+  /* ---- BACK (revealed / deployed) ---- */
+  .face-back{
+    transform:rotateY(180deg);
+    background:linear-gradient(160deg,#0d2318 0%, var(--bg-card-back) 100%);
+    border-color:var(--accent-green-dim);
+    box-shadow:inset 0 0 30px -8px rgba(57,255,158,.25);
+  }
+  .back-tag{
+    font-size:9.5px;
+    letter-spacing:.22em;
+    color:var(--accent-green);
+    text-transform:uppercase;
+    margin-bottom:10px;
+    opacity:.85;
+  }
+  .back-name{
+    font-family:var(--font-display);
+    font-size:clamp(15px,3vw,20px);
+    color:#fff;
+    letter-spacing:.03em;
+    line-height:1.25;
+    text-shadow:0 0 14px rgba(57,255,158,.35);
+    word-break:break-word;
+  }
+  .back-bar{
+    margin-top:12px;
+    width:70%;
+    height:2px;
+    background:linear-gradient(90deg,transparent,var(--accent-green),transparent);
+    opacity:.7;
+  }
+
+  /* ---------- footer ---------- */
+  .footer-note{
+    margin-top:34px;
+    font-size:10.5px;
+    color:var(--text-faint);
+    letter-spacing:.08em;
+    text-align:center;
+  }
+
+  @media (max-width:520px){
+    .topbar{ flex-direction:column; align-items:flex-start; gap:12px; }
+    .grid{ grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); }
+  }
+
+  /* respect reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    .card-inner, .btn, .btn-back{ transition:none !important; }
+    .card.pulse .card-inner, .card.shake .card-inner, .card.reshuffling .card-inner{ animation:none !important; }
+  }
+
+  /* keyboard focus visibility */
+  .card:focus-visible .face-front,
+  .card:focus-visible .face-back{ outline:2px solid var(--accent-cyan); outline-offset:2px; }
+  .btn:focus-visible, .btn-back:focus-visible{ outline:2px solid var(--accent-cyan); outline-offset:2px; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <div class="topbar">
+    <!-- ================================================================
+         TOMBOL KEMBALI
+         Ganti href="#" di bawah ini dengan link tujuan Anda.
+         ================================================================ -->
+    <a href="index.html" id="backBtn" class="btn-back">◄ KEMBALI</a>
+
+    <div class="sys-readout">
+      <span>TOTAL: <b id="statTotal">0</b></span>
+      <span>TERBUKA: <b id="statOpened">0</b></span>
+      <span>SISA: <b id="statRemaining">0</b></span>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-eyebrow">// PILOT SELECTION SYSTEM</div>
+    <h1>Name Picker</h1>
+    <p>Klik unit kartu untuk membuka identitas pilot. Kartu yang sudah terbuka akan terkunci permanen sampai sistem di-reset.</p>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-random" id="btnRandom">
+      <span class="ico">⌖</span> PILIH ACAK
+    </button>
+    <button class="btn btn-shuffle" id="btnShuffle">
+      <span class="ico">⟲</span> ACAK KARTU
+    </button>
+    <button class="btn btn-reset" id="btnReset">
+      <span class="ico">⨯</span> RESET KARTU
+    </button>
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="footer-note">DATA TERSIMPAN SECARA LOKAL &mdash; TETAP TERBUKA WALAU HALAMAN DITUTUP, SAMPAI DIRESET</div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     DAFTAR NAMA — silakan isi manual sesuai kebutuhan Anda.
+     Boleh diisi berapa pun jumlahnya, grid akan menyesuaikan.
+     ============================================================ */
+  var NAMES = ["ADHWA RAFAIZ", "AIMAN CAILANI KASWA", "ALIF ANDRI WIJAYA", "ARKAN ATAYA NARISKAL", "DEEYA HILMY FATHURRAHMAN", "DIMAS RAYHAN ABRAR", "FAUZAN IBRAHIM HISYAM", "FUDHAIL KOKOH ALFATIH", "HABIL RAMA ABDILLAH", "HAFIZ YUSUF WARDHANA", "M. RAFIF SAVA ARIVYA", "M.ALHAFIZ", "MUHAMMAD ABDUL RAHMAN", "MUHAMMAD MARFEL", "MUHAMMAD NAUFAL", "MUHAMMAD NUR HASSAN SYAHME", "MUHAMMAD NUR HUSEIN SYAHME", "PARNAUNGAN SITOMPUL", "RAFA HABIB MAHASIN", "SALMAN AL-FARISY YUNUS", "SHABIAN AL BELDEN", "YAZID HILAL ERDANI", "YUSUF FAHRI NUR HIDAYAT", "ZAIDAN FARHAN MU'AFA", "ZAMZAMI ABDULLAH", "ABDUL KARIM ZAIDAN", "AQIL FATHURRAHMAN SAFIY", "AZZAM HAFIZH SYAUQI", "MUHAMMAD SHODIQ MURTADHO"];
+
+  var STORAGE_KEY = "mecha_name_picker_state_v1";
+
+  var grid = document.getElementById("grid");
+  var btnRandom = document.getElementById("btnRandom");
+  var btnShuffle = document.getElementById("btnShuffle");
+  var btnReset = document.getElementById("btnReset");
+  var toastEl = document.getElementById("toast");
+  var statTotal = document.getElementById("statTotal");
+  var statOpened = document.getElementById("statOpened");
+  var statRemaining = document.getElementById("statRemaining");
+
+  var state = null; // { names:[...], order:[nameIndexPerPosition], opened:[bool...] }
+  var toastTimer = null;
+
+  function shuffleArray(arr){
+    var a = arr.slice();
+    for(var i=a.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var tmp=a[i]; a[i]=a[j]; a[j]=tmp;
+    }
+    return a;
+  }
+
+  function freshState(){
+    var idx = [];
+    for(var i=0;i<NAMES.length;i++) idx.push(i);
+    return {
+      names: NAMES.slice(),
+      order: shuffleArray(idx),
+      opened: new Array(NAMES.length).fill(false)
+    };
+  }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return freshState();
+      var parsed = JSON.parse(raw);
+      // kalau daftar nama berubah (jumlah/isi beda), mulai ulang sesi baru
+      if(!parsed || !Array.isArray(parsed.names) || JSON.stringify(parsed.names) !== JSON.stringify(NAMES)){
+        return freshState();
+      }
+      if(!Array.isArray(parsed.order) || !Array.isArray(parsed.opened) ||
+         parsed.order.length !== NAMES.length || parsed.opened.length !== NAMES.length){
+        return freshState();
+      }
+      return parsed;
+    }catch(e){
+      return freshState();
+    }
+  }
+
+  function saveState(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }catch(e){ /* penyimpanan tidak tersedia, lanjut tanpa persistensi */ }
+  }
+
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 2200);
+  }
+
+  function updateStats(){
+    var openedCount = state.opened.filter(Boolean).length;
+    statTotal.textContent = NAMES.length;
+    statOpened.textContent = openedCount;
+    statRemaining.textContent = NAMES.length - openedCount;
+    btnRandom.disabled = openedCount >= NAMES.length;
+    btnShuffle.disabled = openedCount >= NAMES.length;
+  }
+
+  function render(){
+    grid.innerHTML = "";
+    state.order.forEach(function(nameIndex, position){
+      var isOpen = !!state.opened[position];
+
+      var card = document.createElement("div");
+      card.className = "card" + (isOpen ? " opened locked-open" : "");
+      card.setAttribute("tabindex", "0");
+      card.setAttribute("role", "button");
+      card.setAttribute("data-position", position);
+      card.setAttribute("aria-label", isOpen ? ("Terbuka: " + state.names[nameIndex]) : "Kartu tertutup, klik untuk membuka");
+
+      var inner = document.createElement("div");
+      inner.className = "card-inner";
+
+      var front = document.createElement("div");
+      front.className = "face face-front";
+      front.innerHTML =
+        '<span class="corner tl"></span><span class="corner tr"></span>' +
+        '<span class="corner bl"></span><span class="corner br"></span>' +
+        '<div class="front-glyph">◈</div>' +
+        '<div class="front-id">UNIT-' + String(position+1).padStart(2,"0") + '</div>' +
+        '<div class="front-status">STANDBY</div>';
+
+      var back = document.createElement("div");
+      back.className = "face face-back";
+      back.innerHTML =
+        '<div class="back-tag">PILOT TERKUNCI</div>' +
+        '<div class="back-name"></div>' +
+        '<div class="back-bar"></div>';
+      back.querySelector(".back-name").textContent = state.names[nameIndex];
+
+      inner.appendChild(front);
+      inner.appendChild(back);
+      card.appendChild(inner);
+      grid.appendChild(card);
+
+      card.addEventListener("click", function(){ handleCardActivate(position, card); });
+      card.addEventListener("keydown", function(ev){
+        if(ev.key === "Enter" || ev.key === " "){
+          ev.preventDefault();
+          handleCardActivate(position, card);
+        }
+      });
+    });
+    updateStats();
+  }
+
+  function handleCardActivate(position, cardEl){
+    if(state.opened[position]){
+      // sudah terbuka: beri feedback kecil, tidak bisa ditutup lagi
+      cardEl.classList.remove("shake");
+      void cardEl.offsetWidth;
+      cardEl.classList.add("shake");
+      return;
+    }
+    openPosition(position, cardEl);
+  }
+
+  function openPosition(position, cardEl){
+    state.opened[position] = true;
+    saveState();
+    if(cardEl){
+      cardEl.classList.add("opened", "locked-open");
+      cardEl.classList.add("pulse");
+      cardEl.setAttribute("aria-label", "Terbuka: " + state.names[state.order[position]]);
+    }
+    updateStats();
+  }
+
+  function pickRandom(){
+    var closedPositions = [];
+    state.opened.forEach(function(v,i){ if(!v) closedPositions.push(i); });
+    if(closedPositions.length === 0){
+      showToast("SEMUA KARTU SUDAH TERBUKA");
+      return;
+    }
+    var pick = closedPositions[Math.floor(Math.random()*closedPositions.length)];
+    var cardEl = grid.querySelector('.card[data-position="' + pick + '"]');
+    openPosition(pick, cardEl);
+    if(cardEl){
+      cardEl.scrollIntoView({ behavior:"smooth", block:"center" });
+    }
+    showToast("TERPILIH: " + state.names[state.order[pick]]);
+  }
+
+  function shuffleClosedCards(){
+    var closedPositions = [];
+    state.opened.forEach(function(v,i){ if(!v) closedPositions.push(i); });
+    if(closedPositions.length <= 1){
+      showToast("TIDAK CUKUP KARTU UNTUK DIACAK");
+      return;
+    }
+    var nameIdsAtClosed = closedPositions.map(function(p){ return state.order[p]; });
+    var shuffled = shuffleArray(nameIdsAtClosed);
+    closedPositions.forEach(function(p, i){ state.order[p] = shuffled[i]; });
+    saveState();
+
+    closedPositions.forEach(function(p){
+      var cardEl = grid.querySelector('.card[data-position="' + p + '"]');
+      if(cardEl){
+        cardEl.classList.remove("reshuffling");
+        void cardEl.offsetWidth;
+        cardEl.classList.add("reshuffling");
+      }
+    });
+    showToast("KARTU TERTUTUP TELAH DIACAK");
+  }
+
+  function resetAll(){
+    state = freshState();
+    saveState();
+    render();
+    showToast("SISTEM DIRESET");
+  }
+
+  btnRandom.addEventListener("click", pickRandom);
+  btnShuffle.addEventListener("click", shuffleClosedCards);
+  btnReset.addEventListener("click", function(){
+    if(window.confirm("Reset semua kartu? Semua identitas yang sudah terbuka akan tersembunyi kembali.")){
+      resetAll();
+    }
+  });
+
+  state = loadState();
+  render();
+})();
+</script>
+
+</body>
+</html>
