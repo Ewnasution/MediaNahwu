@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nahwu Quiz — Bahasa Arab!</title>
+<link id="theme-style" rel="stylesheet" href="style1.css">
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="hero">
+    <span class="hero__eyebrow">🎓 Game Bahasa Arab</span>
+    <h1 class="hero__title"><em>NAHWU</em> TIME</h1>
+    <p class="hero__subtitle">Uji I'rabmu!</p>
+  </header>
+  <div class="style-switcher">
+    <button onclick="changeStyle('style1.css')">Style 1</button>
+    <button onclick="changeStyle('style2.css')">Style 2</button>
+    <button onclick="changeStyle('style3.css')">Style 3</button>
+  </div>
+
+  <div class="grid-2">
+
+    <!-- ============ PILIH PESERTA ============ -->
+   <section class="panel">
+  <div class="panel__head">
+    <h2 class="panel__title">Pilih peserta</h2>
+    <span class="panel__hint" id="participantCount"></span>
+  </div>
+
+  <div class="ps-search-row">
+    <span class="ps-search-icon">&#9906;</span>
+    <input
+      type="search"
+      id="participantSearch"
+      class="ps-search-input"
+      placeholder="Cari nama..."
+      autocomplete="off"
+      aria-label="Cari peserta"
+    />
+  </div>
+
+  <div class="ps-list" id="participantList" role="list"></div>
+  <p class="ps-empty" id="participantEmpty">Nama tidak ditemukan.</p>
+
+  <div class="ps-add-row">
+    <input
+      type="text"
+      id="addParticipantInput"
+      class="ps-add-input"
+      placeholder="Tambah nama baru..."
+      maxlength="40"
+      autocomplete="off"
+      aria-label="Nama peserta baru"
+    />
+    <button type="button" id="addParticipantBtn" class="ps-add-btn">+ Tambah</button>
+  </div>
+  <p class="ps-add-error" id="addParticipantError"></p>
+
+  <div class="ps-selected-bar" id="selectedBar" hidden>
+    <span class="ps-selected-icon">&#10003;</span>
+    <span class="ps-selected-name" id="selectedBarName"></span>
+    <span class="ps-selected-label">terpilih</span>
+  </div>
+
+  <p class="select-warning" id="selectWarning">Pilih peserta terlebih dahulu.</p>
+  <button class="cta" id="startBtn" disabled>Mulai game</button>
+</section>
+
+    <!-- ============ LEADERBOARD ============ -->
+    <section class="panel">
+      <div class="panel__head">
+        <h2 class="panel__title">Leaderboard</h2>
+        <span class="panel__hint">Skor tertinggi</span>
+      </div>
+
+      <div id="podium"></div>
+      <table class="lb-table" id="lbTable">
+        <thead>
+          <tr>
+            <th style="width:38px;">#</th>
+            <th>Nama</th>
+            <th style="text-align:right;">Skor</th>
+          </tr>
+        </thead>
+        <tbody id="lbBody"></tbody>
+      </table>
+      <div id="lbEmpty" class="lb-empty" style="display:none;">Belum ada data. Mainkan game untuk mengisi leaderboard!</div>
+
+      <div class="lb-actions">
+        <button class="btn-ghost" id="resetLbBtn" type="button">Reset Leaderboard</button>
+      </div>
+    </section>
+
+  </div>
+
+  <p class="footer-note">Dibuat dengan ❤️ oleh Elkausar Wijaya · Data tersimpan di perangkat ini saja</p>
+</div>
+
+<!-- Confirm reset modal -->
+<div class="modal-overlay" id="resetOverlay">
+  <div class="modal">
+    <div class="modal__icon">🗑️</div>
+    <h3 class="modal__title">Reset Leaderboard?</h3>
+    <p class="modal__text">Apakah Anda yakin ingin menghapus seluruh leaderboard? Tindakan ini tidak dapat dibatalkan.</p>
+    <div class="modal__actions">
+      <button class="btn-cancel" id="cancelResetBtn" type="button">Batal</button>
+      <button class="btn-danger" id="confirmResetBtn" type="button">Ya, Hapus</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', EduQuiz.initIndexPage);
+</script>
+</body>
+</html>
