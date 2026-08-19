@@ -689,7 +689,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
   justify-content:center;
 }
 .question-card__text{
-  font-size:clamp(21px, 3.4vw, 28px);
+  font-size:clamp(50px, 5.4vw, 60px);
   font-weight:800;
   letter-spacing:-.01em;
   line-height:1.35;
@@ -713,7 +713,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
   border:1.5px solid var(--line);
   border-radius:var(--radius-md);
   padding:18px 18px;
-  font-size:16px;
+  font-size:35px;
   font-weight:600;
   color:var(--text);
   cursor:pointer;
@@ -731,7 +731,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
   border:1px solid var(--line);
   display:flex; align-items:center; justify-content:center;
   font-weight:800;
-  font-size:14px;
+  font-size:35px;
   color:var(--text-dim);
 }
 .answer:disabled{ cursor:default; }
