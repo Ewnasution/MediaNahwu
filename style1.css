@@ -58,6 +58,40 @@
   z-index: 9999;
 }
 
+.link_picker {
+  position: fixed;
+  top: 16px;
+  left: 60px;
+  display: flex;
+  transform: translateX(-50%);
+  z-index: 16px;
+}
+
+.link_picker button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 12px;
+  background: #99b366c6;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 
+    0 6px 12px -2px rgba(235, 124, 64, 0.4),
+    inset 0 -3px 4px rgba(158, 201, 39, 0.2),
+    inset 0 3px 4px rgba(81, 214, 63, 0.4);
+  transition: all 0.2s ease;
+}
+
+.link_picker button:hover {
+  transform: translateY(-2px);
+}
+
+.link_picker button:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
 /* Styling tombol menyesuaikan tema Claymorphism */
 .style-switcher button {
   padding: 8px 14px;
