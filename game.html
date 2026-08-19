@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nahwu Game — Bermain</title>
+<link id="theme-style" rel="stylesheet" href="style1.css">
+</head>
+<body>
+
+<div class="style-switcher">
+    <button onclick="changeStyle('style1.css')">Style 1</button>
+    <button onclick="changeStyle('style2.css')">Style 2</button>
+    <button onclick="changeStyle('style3.css')">Style 3</button>
+</div>
+
+<div class="wrap">
+
+  <div class="game-header">
+    <div class="player-chip">
+      <div class="player-chip__avatar" id="playerAvatar">?</div>
+      <div>
+        <div class="player-chip__label">Peserta</div>
+        <div class="player-chip__name" id="playerName">-</div>
+      </div>
+    </div>
+
+    <div class="timer-ring" id="timerRing" style="--pct:100;">
+      <div class="timer-ring__face">
+        <div class="timer-ring__time" id="timerText">02:00</div>
+        <div class="timer-ring__unit">Waktu</div>
+      </div>
+    </div>
+
+    <div class="score-chip">
+      <div class="score-chip__label">Skor</div>
+      <div class="score-chip__value" id="scoreValue">0</div>
+    </div>
+  </div>
+
+  <div class="progress-row">
+    <span id="progressLabel">Soal 1 / 10</span>
+    <span id="progressPercent">0%</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <div class="question-card">
+    <p class="question-card__text" id="questionText">Memuat soal...</p>
+  </div>
+
+  <div class="answers" id="answersGrid"></div>
+
+  <p class="feedback" id="feedback">&nbsp;</p>
+
+</div>
+
+<!-- Game over modal -->
+<div class="modal-overlay" id="resultOverlay">
+  <div class="modal">
+    <div class="modal__icon">🏁</div>
+    <h3 class="modal__title">GAME SELESAI!</h3>
+    <p class="modal__text" id="resultPlayer">👤 -</p>
+    <div class="result-score" id="resultScore">0</div>
+    <div class="result-stats">
+      <span class="correct">
+        <span class="num" id="resultCorrect">0</span>
+        Jawaban Benar
+      </span>
+      <span class="wrong">
+        <span class="num" id="resultWrong">0</span>
+        Jawaban Salah
+      </span>
+    </div>
+    <div class="modal__actions">
+      <button class="btn-danger" style="flex:1;" id="backToMenuBtn" type="button">KEMBALI KE MENU</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', EduQuiz.initGamePage);
+</script>
+</body>
+</html>
