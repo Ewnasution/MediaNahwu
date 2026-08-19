@@ -785,7 +785,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
   justify-content: center;
 }
 .question-card__text {
-  font-size: clamp(21px, 3.4vw, 28px);
+  font-size: clamp(50px, 5.4vw, 60px);
   font-weight: 900;
   letter-spacing: -.01em;
   line-height: 1.35;
@@ -810,7 +810,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
   box-shadow: var(--clay-btn-shadow);
   border-radius: var(--radius-md);
   padding: 20px;
-  font-size: 16px;
+  font-size: 35px;
   font-weight: 700;
   color: var(--text);
   cursor: pointer;
@@ -838,7 +838,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     0 2px 4px rgba(255, 255, 255, 0.8);
   display: flex; align-items: center; justify-content: center;
   font-weight: 900;
-  font-size: 15px;
+  font-size: 35px;
   color: var(--primary);
 }
 .answer:disabled { cursor: default; }
